@@ -30,13 +30,22 @@
 - Familiarity with Git & GitHub
 - Commitment
 
+
 ## Desirables:
 
 - Worked with Jupyter Notebooks, Pandas and Numpy
 
-## Resources used
+---
+## Resources
+
+### Setup
 
 [Pipenv Guide - Virtual Environment & Package Management](https://realpython.com/pipenv-guide/)
+
+[Google Calendar API - OAuth Credentials Setup](https://developers.google.com/workspace/guides/create-credentials?authuser=3#oauth-client-id)
+
+
+### Project Development
 
 [Pandas Documentation](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html)
 

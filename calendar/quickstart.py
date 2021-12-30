@@ -43,22 +43,16 @@ def main():
         
         n = n.isoformat()
         n_later = n_later.isoformat()
-        
-        print('event start time:' + n)
-        print('event end time:' + n_later)
-        
-        
+
         event = {
-        'summary': 'Test',
+        'summary': 'Todays Test',
         'location': '10 Downing Street, London',
         'description': 'A test calendar event',
         'start': {
-            'dateTime': n,
-            'timeZone': 'Europe/London'
+            'dateTime': n
         },
         'end': {
-            'dateTime': n_later,
-            'timeZone': 'Europe/London'            
+            'dateTime': n_later          
         }
         }
 

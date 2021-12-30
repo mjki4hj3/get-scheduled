@@ -38,9 +38,13 @@
 ---
 ## Resources
 
+
+
 ### Setup
 
 [Pipenv Guide - Virtual Environment & Package Management](https://realpython.com/pipenv-guide/)
+
+[Google Calendar - Python Installation](https://developers.google.com/calendar/api/quickstart/python)
 
 [Google Calendar API - OAuth Credentials Setup](https://developers.google.com/workspace/guides/create-credentials?authuser=3#oauth-client-id)
 

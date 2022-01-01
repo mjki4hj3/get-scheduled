@@ -82,4 +82,6 @@ cols = df.columns.tolist()
 cols =  cols[0:1] + cols[-1:] + cols[1:3]
 df = df[cols]
 
-df.to_excel('../data/result.xlsx', sheet_name= "Sheet2")
+
+with pd.ExcelWriter("../data/result.xlsx", engine="openpyxl", mode="w", on_sheet_exists="replace") as writer:
+   df.to_excel(writer, index=False)

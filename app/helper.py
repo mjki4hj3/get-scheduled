@@ -8,12 +8,15 @@ def round_to_minimum_duration(value):
 
 # function to split oversized topics into defined study periods
 def splitting_function(index, sum, study_period, df):
+    
     # scheduling the oversized topic with remaining space in current study period
     space = study_period - (sum - df.loc[index,'Duration (Hours)'])
+    
+    excess = df.at[index, 'Duration (Hours)'] - space
     df.at[index, 'Duration (Hours)'] = space # scheduling the oversized topic with remainder time
     
     # splitting the remainder of the oversized topic 
-    excess = df.at[index, 'Duration (Hours)'] - space
+    
     slot = 0.01
     # splitting oversized into as many study slots equal to defined studyperiod 
     while excess > study_period:

@@ -1,16 +1,16 @@
 #Helper Functions
-def round_to_minimum_duration(value):
-    if value < 0.5:
-        value = 0.5
+def round_to_minimum_duration(value, study_block):
+    if value < study_block:
+        value = study_block
     else:
         value = 1
     return value
 
 # function to split oversized topics into defined study periods
-def splitting_function(index, sum, study_period, df):
+def splitting_function(index, sum, input_value, df):
     
     # scheduling the oversized topic with remaining space in current study period
-    space = study_period - (sum - df.loc[index,'Duration (Hours)'])
+    space = input_value - (sum - df.loc[index,'Duration (Hours)'])
     
     excess = df.at[index, 'Duration (Hours)'] - space
     df.at[index, 'Duration (Hours)'] = space # scheduling the oversized topic with remainder time
@@ -19,10 +19,10 @@ def splitting_function(index, sum, study_period, df):
     
     slot = 0.01
     # splitting oversized into as many study slots equal to defined studyperiod 
-    while excess > study_period:
+    while excess > input_value:
         df.loc[index + slot] = df.loc[index]
-        df.loc[(index + slot), 'Duration (Hours)'] = study_period
-        excess = excess - study_period
+        df.loc[(index + slot), 'Duration (Hours)'] = input_value
+        excess = excess - input_value
         slot+= 0.01
 
     # scheduling the remainder of the oversized topic
@@ -30,4 +30,22 @@ def splitting_function(index, sum, study_period, df):
     df.loc[(index + slot), 'Duration (Hours)'] = excess
 
     return df
-    
+
+
+def input_request(message): 
+    while True:
+        try:
+            input_value = float(input(message))
+            if input_value > 0:
+                break
+            elif input_value == 0:
+                print("Please enter a non-zero study duration")
+                continue
+            else:
+                print("Please enter a non-negative study duration")
+                continue
+        except:
+            print("Please enter a number")
+            continue
+        
+    return input_value/60

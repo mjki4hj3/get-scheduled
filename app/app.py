@@ -34,7 +34,6 @@ for index in indexes:
     df.at[index, 'Duration (Hours)'] =  updated_duration[position]
     position += 1
 
-# add input validation
 
 date = dt.today() 
 
@@ -66,15 +65,15 @@ while index < len(df):
         df.loc[index,"Date"] = date
     elif sum == study_period:
         df.loc[index,"Date"] = date
-        date = date + timedelta(1)
+        date = date + timedelta(hours=1)
         sum = 0 
     else:
         splitting_function(index, sum, study_period, df)
         df = df.sort_index().reset_index(drop=True)
         df.loc[index, "Date"] = date
-        date = date + timedelta(1)
+        date = date + timedelta(hours=1)
         sum = 0   
-        
+        ```
     index +=1  
 
 # Moving the date column 

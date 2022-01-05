@@ -76,5 +76,10 @@ df = df[cols]
 df.rename(columns={'Duration (Hours)': 'Study Block (Minutes)'}, inplace=True)
 df['Study Block (Minutes)'] = df['Study Block (Minutes)'].apply(lambda x: x*60)
 
-with pd.ExcelWriter("../data/result.xlsx", engine="openpyxl", mode="w", on_sheet_exists="replace") as writer:
-   df.to_excel(writer, index=False)
+try:
+    with pd.ExcelWriter("../data/result.xlsx", engine="openpyxl", mode="w", on_sheet_exists="replace") as writer:
+        df.to_excel(writer, index=False)
+    print("Schedule is ready for viewing")
+except:
+    #Improve error message
+    print("Error - please try run app again")

@@ -74,7 +74,7 @@ df = df[cols]
 
 #Convert duration column to minutes
 df.rename(columns={'Duration (Hours)': 'Study Block (Minutes)'}, inplace=True)
-df['Study Block (Minutes)'] = df['Duration (Minutes)'].apply(lambda x: x*60)
+df['Study Block (Minutes)'] = df['Study Block (Minutes)'].apply(lambda x: x*60)
 
 with pd.ExcelWriter("../data/result.xlsx", engine="openpyxl", mode="w", on_sheet_exists="replace") as writer:
    df.to_excel(writer, index=False)

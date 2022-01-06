@@ -37,7 +37,7 @@ def main():
     try:
         service = build('calendar', 'v3', credentials=creds)
         
-        n = datetime.datetime.now(datetime.timezone.utc)
+        n = datetime.datetime.now(datetime.timezone.utc).astimezone()
         
         n_later = n + datetime.timedelta(hours=1)
         

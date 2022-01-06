@@ -27,38 +27,11 @@ while True:
     else:
         print("\n Please enter y/n \n")
         is_pomodoro = input('Do you want to schedule using the pomodoro technique?(y/n)')
-        
-
-
 
 study_block = study_duration + break_duration
 
 while study_block > study_session:
     print("Please enter a study duratio")
-
-# #Set values that are less than the minimum study session duration
-# df['Duration (Hours)'].update(df.loc[df['Duration (Hours)'] < study_block, ['Duration (Hours)']]['Duration (Hours)'].apply(lambda x: round_to_minimum_duration(x, study_block)))
-
-# #Get the remainder for durations bigger than minimum study session duration
-# values_greater_minimum_duration = df.loc[df['Duration (Hours)'] > study_block, ['Duration (Hours)']]['Duration (Hours)'].apply(lambda x: x % 1).values.tolist()
-
-# #Call the minimum duration function
-# updated_values = []
-# for value in values_greater_minimum_duration:
-#     updated_values.append(round_to_minimum_duration(value, study_block))
-
-#Take the integer and add it to the minimum duration (rounded or otherwise)
-# integer_values = df.loc[df['Duration (Hours)'] > study_block, ['Duration (Hours)']]['Duration (Hours)'].astype('int').values.tolist()
-
-# updated_duration = [a+b for a, b in zip(integer_values, updated_values)]
-
-# List of the index position of the durations that need updating
-# indexes = df.loc[df['Duration (Hours)'] > study_block, ['Duration (Hours)']].index
-
-# position = 0
-# for index in indexes:
-#     df.at[index, 'Duration (Hours)'] =  updated_duration[position]
-#     position += 1
 
 
 date = dt.today() 

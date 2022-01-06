@@ -73,13 +73,12 @@ while index < len(df):
     index +=1  
 
 
-
+df = splitting_function2(df, study_block)    
 df['Study Block Summation (Minutes)'] = df['Duration (Hours)'].cumsum()*60
 
 
 #Pomodoro Sessions 
 
-    
     
 
 
@@ -88,12 +87,12 @@ reduced_column_names = [ elem for elem in df.columns.tolist() if elem not in ['N
 
 df =df[['Name','Date'] + reduced_column_names]
 
-print(df)
+
 
 #Convert duration column to minutes
 df.rename(columns={'Duration (Hours)': 'Study Block (Minutes)'}, inplace=True)
 df['Study Block (Minutes)'] = df['Study Block (Minutes)'].apply(lambda x: x*60)
-
+print(df)
 try:
     with pd.ExcelWriter("../data/result.xlsx", engine="openpyxl", mode="w", on_sheet_exists="replace") as writer:
         df.to_excel(writer, index=False)

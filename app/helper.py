@@ -1,4 +1,7 @@
 #Helper Functions
+from pandas.core.frame import DataFrame
+
+
 def round_to_minimum_duration(value, study_block):
     if value < study_block:
         value = study_block
@@ -17,6 +20,9 @@ def splitting_function(index, sum, max_duration, column_to_split, df):
     
     # splitting the remainder of the oversized topic 
     
+    
+
+
     slot = 0.01
     # splitting oversized into as many study slots equal to defined studyperiod 
     while excess > max_duration:
@@ -29,7 +35,45 @@ def splitting_function(index, sum, max_duration, column_to_split, df):
     df.loc[index + slot] = df.loc[index]
     df.loc[(index + slot), column_to_split] = excess
 
+
     return df
+
+
+
+
+def splitting_function2(df, study_block):
+
+    index = 0
+    sum = 0
+    slot = 0.01 
+    counter = 0
+    while index < len(df):
+
+        
+
+        if df.loc[index, "Duration (Hours)"] > study_block:
+
+            split = df.loc[index, "Duration (Hours)"] - study_block
+            df.loc[index, "Duration (Hours)"] = study_block
+            df.loc[index + slot] = df.loc[index]
+            df.loc[(index + slot), "Duration (Hours)"] = split
+            df = df.sort_index().reset_index(drop=True)
+            slot += 0.01
+            
+
+        index += 1
+
+    return df
+
+
+
+
+
+
+
+
+
+
 
 
 def input_request(message): 

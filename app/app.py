@@ -10,7 +10,7 @@ df = pd.read_excel('../data/src-data.xlsx')
 df['Duration (Hours)'] = df['Minutes']/60
 
 
-# study_session = input_request("How long (in minutes) do you want to study each day?: ")
+study_session = input_request("How long (in minutes) do you want to study each day?: ")
 
 is_pomodoro = input('Do you want to schedule using the pomodoro technique? (y/n: ')
 
@@ -29,10 +29,6 @@ while True:
         is_pomodoro = input('Do you want to schedule using the pomodoro technique?(y/n)')
         
 
-
-study_session = 120/60
-study_duration = 20/60
-break_duration = 10/60
 
 
 study_block = study_duration + break_duration

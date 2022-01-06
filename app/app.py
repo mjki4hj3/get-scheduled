@@ -74,13 +74,16 @@ while index < len(df):
         
     index +=1  
 
-#df['Study Block Summation (Minutes)'] = [60*x for x in study_block_summation]
+df['Study Block Summation (Minutes)'] = [60*x for x in study_block_summation]
 
 
-# Moving the date column 
-cols = df.columns.tolist()
-cols =  cols[0:1] + cols[-1:] + cols[1:3]
-df = df[cols]
+# Column names with Name and Date removed
+
+reduced_column_names = [ elem for elem in df.columns.tolist() if elem not in ['Name', 'Date']]
+
+df =df[['Name','Date'] + reduced_column_names]
+
+print(df)
 
 
 #Convert duration column to minutes

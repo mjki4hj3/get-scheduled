@@ -78,6 +78,8 @@ df = study_block_splitter(df, study_block)
 
 df['Study Block Summation (Minutes)'] = df['Duration (Hours)'].cumsum()*60
 
+#Pomodoro Sessions
+df['Pomodoro Session'] = df['Study Block Summation (Minutes)'].apply(lambda x: np.floor(x/(60*study_block)))
 
 # Column names with Name and Date removed
 reduced_column_names = [ elem for elem in df.columns.tolist() if elem not in ['Name', 'Date']]

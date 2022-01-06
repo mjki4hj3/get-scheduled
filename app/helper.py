@@ -41,7 +41,7 @@ def splitting_function(index, sum, max_duration, column_to_split, df):
 
 
 
-def splitting_function2(df, study_block):
+def study_block_splitter(df, study_block):
 
     index = 0
     slot = 0.01 

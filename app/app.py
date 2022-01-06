@@ -72,14 +72,11 @@ while index < len(df):
         
     index +=1  
 
+#Splits Duration (Hours) column into study blocks (pomodoro sessions)
+df = study_block_splitter(df, study_block)    
 
-df = splitting_function2(df, study_block)    
+
 df['Study Block Summation (Minutes)'] = df['Duration (Hours)'].cumsum()*60
-
-
-#Pomodoro Sessions 
-
-    
 
 
 # Column names with Name and Date removed

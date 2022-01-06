@@ -44,12 +44,9 @@ def splitting_function(index, sum, max_duration, column_to_split, df):
 def splitting_function2(df, study_block):
 
     index = 0
-    sum = 0
     slot = 0.01 
-    counter = 0
+    
     while index < len(df):
-
-        
 
         if df.loc[index, "Duration (Hours)"] > study_block:
 

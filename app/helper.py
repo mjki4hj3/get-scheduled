@@ -7,27 +7,27 @@ def round_to_minimum_duration(value, study_block):
     return value
 
 # function to split oversized topics into defined study periods
-def splitting_function(index, sum, input_value, df):
+def splitting_function(index, sum, max_duration, column_to_split, df):
     
     # scheduling the oversized topic with remaining space in current study period
-    space = input_value - (sum - df.loc[index,'Duration (Hours)'])
+    space = max_duration - (sum - df.loc[index,column_to_split])
     
-    excess = df.at[index, 'Duration (Hours)'] - space
-    df.at[index, 'Duration (Hours)'] = space # scheduling the oversized topic with remainder time
+    excess = df.at[index, column_to_split] - space
+    df.at[index, column_to_split] = space # scheduling the oversized topic with remainder time
     
     # splitting the remainder of the oversized topic 
     
     slot = 0.01
     # splitting oversized into as many study slots equal to defined studyperiod 
-    while excess > input_value:
+    while excess > max_duration:
         df.loc[index + slot] = df.loc[index]
-        df.loc[(index + slot), 'Duration (Hours)'] = input_value
-        excess = excess - input_value
+        df.loc[(index + slot), column_to_split] = max_duration
+        excess = excess - max_duration
         slot+= 0.01
 
     # scheduling the remainder of the oversized topic
     df.loc[index + slot] = df.loc[index]
-    df.loc[(index + slot), 'Duration (Hours)'] = excess
+    df.loc[(index + slot), column_to_split] = excess
 
     return df
 
@@ -35,10 +35,10 @@ def splitting_function(index, sum, input_value, df):
 def input_request(message): 
     while True:
         try:
-            input_value = float(input(message))
-            if input_value > 0:
+            max_duration = float(input(message))
+            if max_duration > 0:
                 break
-            elif input_value == 0:
+            elif max_duration == 0:
                 print("Please enter a non-zero study duration")
                 continue
             else:
@@ -48,4 +48,4 @@ def input_request(message):
             print("Please enter a number")
             continue
         
-    return input_value/60
+    return max_duration/60

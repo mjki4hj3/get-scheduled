@@ -16,9 +16,9 @@ df['Duration (Hours)'] = df['Minutes']/60
 # break_duration = input_request("How long (in minutes) do you want the break to be?: ")
 
 
-study_session = 120
-study_duration = 20
-break_duration = 10
+study_session = 120/60
+study_duration = 20/60
+break_duration = 10/60
 
 
 study_block = study_duration + break_duration
@@ -52,13 +52,11 @@ date = dt.today()
         
     
 sum = 0
-study_block_summation = []
 index = 0 
 while index < len(df):
-    
+
     sum += df.at[index, 'Duration (Hours)']
-    study_block_summation.append(sum)
-    
+
     if sum < study_session:
         df.loc[index,"Date"] = date
     elif sum == study_session:
@@ -66,7 +64,7 @@ while index < len(df):
         date = date + timedelta(days=1)
         sum = 0 
     else:
-        splitting_function(index, sum, study_session, df)
+        splitting_function(index, sum, study_session, 'Duration (Hours)', df)
         df = df.sort_index().reset_index(drop=True)
         df.loc[index, "Date"] = date
         date = date + timedelta(days=1)
@@ -74,17 +72,23 @@ while index < len(df):
         
     index +=1  
 
-df['Study Block Summation (Minutes)'] = [60*x for x in study_block_summation]
+
+
+df['Study Block Summation (Minutes)'] = df['Duration (Hours)'].cumsum()*60
+
+
+#Pomodoro Sessions 
+
+    
+    
 
 
 # Column names with Name and Date removed
-
 reduced_column_names = [ elem for elem in df.columns.tolist() if elem not in ['Name', 'Date']]
 
 df =df[['Name','Date'] + reduced_column_names]
 
 print(df)
-
 
 #Convert duration column to minutes
 df.rename(columns={'Duration (Hours)': 'Study Block (Minutes)'}, inplace=True)

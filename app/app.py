@@ -12,8 +12,22 @@ df['Duration (Hours)'] = df['Minutes']/60
 
 # study_session = input_request("How long (in minutes) do you want to study each day?: ")
 
-# study_duration = input_request("How long (in minutes) do you want to study for each pomodoro session?: ")
-# break_duration = input_request("How long (in minutes) do you want the break to be?: ")
+is_pomodoro = input('Do you want to schedule using the pomodoro technique? (y/n: ')
+
+while True:
+    if is_pomodoro.lower() in ['y', 'yes', 1, 'true']:
+
+        study_duration = input_request("How long (in minutes) do you want to study for during each pomodoro session?: ")
+        break_duration = input_request("How long (in minutes) do you want the break to be?: ")
+        break
+    
+    elif is_pomodoro.lower() in ['n', 'no', 0, 'false']:
+        study_block = input_request("How long (in minutes) do you want to study for each session?: ")
+        break
+    else:
+        print("\n Please enter y/n \n")
+        is_pomodoro = input('Do you want to schedule using the pomodoro technique?(y/n)')
+        
 
 
 study_session = 120/60
@@ -22,6 +36,9 @@ break_duration = 10/60
 
 
 study_block = study_duration + break_duration
+
+while study_block > study_session:
+    print("Please enter a study duratio")
 
 # #Set values that are less than the minimum study session duration
 # df['Duration (Hours)'].update(df.loc[df['Duration (Hours)'] < study_block, ['Duration (Hours)']]['Duration (Hours)'].apply(lambda x: round_to_minimum_duration(x, study_block)))

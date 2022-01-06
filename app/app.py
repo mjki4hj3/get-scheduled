@@ -10,46 +10,54 @@ df = pd.read_excel('../data/src-data.xlsx')
 df['Duration (Hours)'] = df['Minutes']/60
 
 
-study_session = input_request("How long (in minutes) do you want to study each day?: ")
+# study_session = input_request("How long (in minutes) do you want to study each day?: ")
 
-study_duration = input_request("How long (in minutes) do you want to study for each pomodoro session?: ")
-break_duration = input_request("How long (in minutes) do you want the break to be?: ")
+# study_duration = input_request("How long (in minutes) do you want to study for each pomodoro session?: ")
+# break_duration = input_request("How long (in minutes) do you want the break to be?: ")
+
+
+study_session = 120
+study_duration = 20
+break_duration = 10
+
 
 study_block = study_duration + break_duration
 
-#Set values that are less than the minimum study session duration
-df['Duration (Hours)'].update(df.loc[df['Duration (Hours)'] < study_block, ['Duration (Hours)']]['Duration (Hours)'].apply(lambda x: round_to_minimum_duration(x, study_block)))
+# #Set values that are less than the minimum study session duration
+# df['Duration (Hours)'].update(df.loc[df['Duration (Hours)'] < study_block, ['Duration (Hours)']]['Duration (Hours)'].apply(lambda x: round_to_minimum_duration(x, study_block)))
 
-#Get the remainder for durations bigger than minimum study session duration
-values_greater_minimum_duration = df.loc[df['Duration (Hours)'] > study_block, ['Duration (Hours)']]['Duration (Hours)'].apply(lambda x: x % 1).values.tolist()
+# #Get the remainder for durations bigger than minimum study session duration
+# values_greater_minimum_duration = df.loc[df['Duration (Hours)'] > study_block, ['Duration (Hours)']]['Duration (Hours)'].apply(lambda x: x % 1).values.tolist()
 
-#Call the minimum duration function
-updated_values = []
-for value in values_greater_minimum_duration:
-    updated_values.append(round_to_minimum_duration(value, study_block))
+# #Call the minimum duration function
+# updated_values = []
+# for value in values_greater_minimum_duration:
+#     updated_values.append(round_to_minimum_duration(value, study_block))
 
 #Take the integer and add it to the minimum duration (rounded or otherwise)
-integer_values = df.loc[df['Duration (Hours)'] > study_block, ['Duration (Hours)']]['Duration (Hours)'].astype('int').values.tolist()
+# integer_values = df.loc[df['Duration (Hours)'] > study_block, ['Duration (Hours)']]['Duration (Hours)'].astype('int').values.tolist()
 
-updated_duration = [a+b for a, b in zip(integer_values, updated_values)]
+# updated_duration = [a+b for a, b in zip(integer_values, updated_values)]
 
 # List of the index position of the durations that need updating
-indexes = df.loc[df['Duration (Hours)'] > study_block, ['Duration (Hours)']].index
+# indexes = df.loc[df['Duration (Hours)'] > study_block, ['Duration (Hours)']].index
 
-position = 0
-for index in indexes:
-    df.at[index, 'Duration (Hours)'] =  updated_duration[position]
-    position += 1
+# position = 0
+# for index in indexes:
+#     df.at[index, 'Duration (Hours)'] =  updated_duration[position]
+#     position += 1
 
 
 date = dt.today() 
         
     
 sum = 0
+study_block_summation = []
 index = 0 
 while index < len(df):
     
     sum += df.at[index, 'Duration (Hours)']
+    study_block_summation.append(sum)
     
     if sum < study_session:
         df.loc[index,"Date"] = date
@@ -65,6 +73,9 @@ while index < len(df):
         sum = 0   
         
     index +=1  
+
+#df['Study Block Summation (Minutes)'] = [60*x for x in study_block_summation]
+
 
 # Moving the date column 
 cols = df.columns.tolist()

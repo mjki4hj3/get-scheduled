@@ -5,6 +5,7 @@ import openpyxl
 from datetime import date as dt, timedelta
 from helper import *
 
+date = dt.today() 
 df = pd.read_excel('../data/src-data.xlsx')
 
 df['Duration (Hours)'] = df['Minutes']/60
@@ -12,13 +13,19 @@ df['Duration (Hours)'] = df['Minutes']/60
 
 study_session = input_request("How long (in minutes) do you want to study each day?: ")
 
-is_pomodoro = input('Do you want to schedule using the pomodoro technique? (y/n: ')
+
 
 while True:
+    is_pomodoro = input('Do you want to schedule using the pomodoro technique? (y/n): ')
+    
     if is_pomodoro.lower() in ['y', 'yes', 1, 'true']:
-
         study_duration = input_request("How long (in minutes) do you want to study for during each pomodoro session?: ")
         break_duration = input_request("How long (in minutes) do you want the break to be?: ")
+        study_block = study_duration + break_duration
+        
+        if study_block > study_session:
+            print("\n The pomodoro session cannot be longer than the total study session \n")
+            continue
         break
     
     elif is_pomodoro.lower() in ['n', 'no', 0, 'false']:
@@ -26,17 +33,9 @@ while True:
         break
     else:
         print("\n Please enter y/n \n")
-        is_pomodoro = input('Do you want to schedule using the pomodoro technique?(y/n)')
-
-study_block = study_duration + break_duration
-
-while study_block > study_session:
-    print("Please enter a study duratio")
 
 
-date = dt.today() 
-        
-    
+
 sum = 0
 index = 0 
 while index < len(df):

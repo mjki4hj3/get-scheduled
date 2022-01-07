@@ -5,83 +5,82 @@ import openpyxl
 from datetime import date as dt, timedelta
 from helper import *
 
+date = dt.today() 
 df = pd.read_excel('../data/src-data.xlsx')
 
 df['Duration (Hours)'] = df['Minutes']/60
 
-#Set values that are less than the minimum study session duration
-df['Duration (Hours)'].update(df.loc[df['Duration (Hours)'] < 0.5, ['Duration (Hours)']]['Duration (Hours)'].apply(lambda x: round_to_minimum_duration(x)))
 
-#Get the remainder for durations bigger than minimum study session duration
-values_greater_minimum_duration = df.loc[df['Duration (Hours)'] > 0.5, ['Duration (Hours)']]['Duration (Hours)'].apply(lambda x: x % 1).values.tolist()
+study_session = input_request("How long (in minutes) do you want to study each day?: ")
 
-#Call the minimum duration function
-updated_values = []
 
-for value in values_greater_minimum_duration:
-    updated_values.append(round_to_minimum_duration(value))
 
-#Take the integer and add it to the minimum duration (rounded or otherwise)
-integer_values = df.loc[df['Duration (Hours)'] > 0.5, ['Duration (Hours)']]['Duration (Hours)'].astype('int').values.tolist()
-
-updated_duration = [a+b for a, b in zip(integer_values, updated_values)]
-
-# List of the index position of the durations that need updating
-indexes = df.loc[df['Duration (Hours)'] > 0.5, ['Duration (Hours)']].index
-
-position = 0
-for index in indexes:
-    df.at[index, 'Duration (Hours)'] =  updated_duration[position]
-    position += 1
-
-# add input validation
-
-date = dt.today() 
-
-# add input validation
 while True:
+    is_pomodoro = input('Do you want to schedule using the pomodoro technique? (y/n): ')
     
-    try:
-        study_period = float(input("How long (in hours) do you want each study session per day to be?: "))
-        if study_period > 0:
-            break
-        elif study_period == 0:
-            print("Please enter a non-zero study duration")
-            continue
-        else:
-            print("Please enter a non-negative study duration")
-            continue
-    except:
-        print("Please enter a number")
-        continue
+    if is_pomodoro.lower() in ['y', 'yes', 1, 'true']:
+        study_duration = input_request("How long (in minutes) do you want to study for during each pomodoro session?: ")
+        break_duration = input_request("How long (in minutes) do you want the break to be?: ")
+        study_block = study_duration + break_duration
         
+        if study_block > study_session:
+            print("\n The pomodoro session cannot be longer than the total study session \n")
+            continue
+        break
     
+    elif is_pomodoro.lower() in ['n', 'no', 0, 'false']:
+        study_block = input_request("How long (in minutes) do you want to study for each session?: ")
+        break
+    else:
+        print("\n Please enter y/n \n")
+
+
+
 sum = 0
 index = 0 
 while index < len(df):
-    
+
     sum += df.at[index, 'Duration (Hours)']
-    
-    if sum < study_period:
+
+    if sum < study_session:
         df.loc[index,"Date"] = date
-    elif sum == study_period:
+    elif sum == study_session:
         df.loc[index,"Date"] = date
-        date = date + timedelta(1)
+        date = date + timedelta(days=1)
         sum = 0 
     else:
-        splitting_function(index, sum, study_period, df)
+        splitting_function(index, sum, study_session, 'Duration (Hours)', df)
         df = df.sort_index().reset_index(drop=True)
         df.loc[index, "Date"] = date
-        date = date + timedelta(1)
+        date = date + timedelta(days=1)
         sum = 0   
         
     index +=1  
 
-# Moving the date column 
-cols = df.columns.tolist()
-cols =  cols[0:1] + cols[-1:] + cols[1:3]
-df = df[cols]
+#Splits Duration (Hours) column into study blocks (pomodoro sessions)
+df = study_block_splitter(df, study_block)    
 
 
-with pd.ExcelWriter("../data/result.xlsx", engine="openpyxl", mode="w", on_sheet_exists="replace") as writer:
-   df.to_excel(writer, index=False)
+df['Study Block Summation (Minutes)'] = df['Duration (Hours)'].cumsum()*60
+
+#Pomodoro Sessions
+df['Pomodoro Session'] = df['Study Block Summation (Minutes)'].apply(lambda x: np.floor(x/(60*study_block)))
+
+# Column names with Name and Date removed
+reduced_column_names = [ elem for elem in df.columns.tolist() if elem not in ['Name', 'Date']]
+
+df =df[['Name','Date'] + reduced_column_names]
+
+
+
+#Convert duration column to minutes
+df.rename(columns={'Duration (Hours)': 'Study Block (Minutes)'}, inplace=True)
+df['Study Block (Minutes)'] = df['Study Block (Minutes)'].apply(lambda x: x*60)
+print(df)
+try:
+    with pd.ExcelWriter("../data/result.xlsx", engine="openpyxl", mode="w", on_sheet_exists="replace") as writer:
+        df.to_excel(writer, index=False)
+    print("Schedule is ready for viewing")
+except:
+    #Improve error message
+    print("Error - please try run app again")

@@ -1,7 +1,21 @@
 # Get Scheduled
 
 ---
+## How to setup
 
+1. Clone or fork into your local repository
+
+2. Install pipenv if you don't already have it
+
+```bash
+pip install pipenv
+```
+
+3. Create virtual python environment and install dependencies
+```bash 
+pipenv shell && pipenv install 
+```
+---
 ## Project Aims
 
 - Have fun

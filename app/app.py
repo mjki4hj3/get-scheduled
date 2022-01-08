@@ -5,66 +5,80 @@ import openpyxl
 from datetime import date as dt, timedelta, datetime
 from helper import *
 
-date = dt.today() 
+
 df = pd.read_excel('../data/src-data.xlsx')
 
 df['Duration (Hours)'] = df['Minutes']/60
 
 
-study_session = input_request("How long (in minutes) do you want to study each day?: ")
+#study_session = input_request("How long (in minutes) do you want to study each day?: ")
 
 
-#Getting the total study time and pomodoro splits
-while True:
-    is_pomodoro = input('Do you want to schedule using the pomodoro technique? (y/n): ')
+#Getting the total study Datetime and pomodoro splits
+# while True:
+#     is_pomodoro = input('Do you want to schedule using the pomodoro technique? (y/n): ')
     
-    if is_pomodoro.lower() in ['y', 'yes', 1, 'true']:
-        study_duration = input_request("How long (in minutes) do you want to study for during each pomodoro session?: ")
-        break_duration = input_request("How long (in minutes) do you want the break to be?: ")
-        study_block = study_duration + break_duration
+#     if is_pomodoro.lower() in ['y', 'yes', 1, 'true']:
+#         study_duration = input_request("How long (in minutes) do you want to study for during each pomodoro session?: ")
+#         break_duration = input_request("How long (in minutes) do you want the break to be?: ")
+#         study_block = study_duration + break_duration
         
-        if study_block > study_session:
-            print("\n The pomodoro session cannot be longer than the total study session \n")
-            continue
-        break
+#         if study_block > study_session:
+#             print("\n The pomodoro session cannot be longer than the total study session \n")
+#             continue
+#         break
     
-    elif is_pomodoro.lower() in ['n', 'no', 0, 'false']:
-        study_block = input_request("How long (in minutes) do you want to study for each session?: ")
-        break
-    else:
-        print("\n Please enter y/n \n")
+#     elif is_pomodoro.lower() in ['n', 'no', 0, 'false']:
+#         study_block = input_request("How long (in minutes) do you want to study for each session?: ")
+#         break
+#     else:
+#         print("\n Please enter y/n \n")
 
 
-#Getting the time to study each day
-while True:
-    try:
-        print("What time would you like to start studying each day? \n")
-        a = datetime.strptime(input('Pleases specify the time in HHMM (24 hour) format: '), "%H%M")
-        print (a.strftime("%H:%M"))
-        break
-    except:
-        print ("Please enter correct time in HHMM format \n")
-        continue
+# #Getting the time to study each day
+# while True:
+#     try:
+        
+#         print("What date would you like to start study? \n")
+#         study_date = datetime.strptime(input('Please specify the date in the dd/mm/yyyy format: '), "%d/%m/%Y")
+        
+#         print("What time would you like to start studying each day? \n")
+#         study_time = datetime.strptime(input('Please specify the time in the HH:MM (24 hour) format: '), "%H:%M")
 
+#         break
+#     except:
+#         print ("Please enter the specified format\n")
+#         continue
+
+study_session = 120/60
+study_duration = 20/60
+study_break = 10/60
+study_block= study_duration + study_break
+study_time = datetime.strptime('13:00', "%H:%M")
+study_date = datetime.strptime('08/01/2022', "%d/%m/%Y")
+
+study_date_time = study_date.replace(hour=study_time.hour, minute=study_time.minute)
 
 
 sum = 0
-index = 0 
+index = 0
+new_date = study_date_time
+
 while index < len(df):
 
     sum += df.at[index, 'Duration (Hours)']
 
     if sum < study_session:
-        df.loc[index,"Date"] = date
+        df.loc[index,"Date"] = new_date
     elif sum == study_session:
-        df.loc[index,"Date"] = date
-        date = date + timedelta(days=1)
+        df.loc[index,"Date"] = new_date
+        new_date = new_date + timedelta(days=1)
         sum = 0 
     else:
         splitting_function(index, sum, study_session, 'Duration (Hours)', df)
         df = df.sort_index().reset_index(drop=True)
-        df.loc[index, "Date"] = date
-        date = date + timedelta(days=1)
+        df.loc[index, "Date"] = new_date
+        new_date = new_date + timedelta(days=1)
         sum = 0   
         
     index +=1  
@@ -78,17 +92,55 @@ df['Study Block Summation (Minutes)'] = df['Duration (Hours)'].cumsum()*60
 #Pomodoro Sessions
 df['Pomodoro Session'] = df['Study Block Summation (Minutes)'].apply(lambda x: np.floor(x/(60*study_block)))
 
+
+
+df.loc[0, 'Study DateTime - Start Time'] = study_date_time
+df.loc[0, 'Study DateTime - End Time'] =  study_date_time + timedelta(hours=study_block)
+previous_date = df.loc[0, 'Date'].date()
+
+index = 1
+
+
+while index < len(df):
+    previous_date = df.loc[index-1, 'Date'].date()
+    
+    #if its the next date
+    if previous_date < df.loc[index, 'Date'].date():
+        #Next day
+        df.loc[index, 'Study DateTime - Start Time'] = df.loc[index, 'Date']
+        df.loc[index, 'Study DateTime - End Time'] = df.loc[index, 'Date'] + timedelta(hours=study_block)
+    
+    
+    else:
+        #Same day
+        if df.loc[index, 'Pomodoro Session'] - df.loc[index-1, 'Pomodoro Session'] > 0:
+            #Same Pomodoro Session
+            df.loc[index, 'Study DateTime - Start Time'] = df.loc[index-1, 'Study DateTime - End Time']
+            df.loc[index, 'Study DateTime - End Time'] = df.loc[index-1, 'Study DateTime - End Time']
+        else:
+            #New Pomodoro Session
+            df.loc[index, 'Study DateTime - Start Time'] = df.loc[index-1, 'Study DateTime - End Time']
+            df.loc[index, 'Study DateTime - End Time'] = df.loc[index, 'Study DateTime - Start Time'] + timedelta(hours=study_block)
+    
+    index +=1
+    
+
+print(df[['Pomodoro Session', 'Study Block Summation (Minutes)', 'Study DateTime - Start Time', 'Study DateTime - End Time']])
+
+df['Date'] = pd.to_datetime(df['Date'], format='%d%m%Y')
+
+
+
 # Column names with Name and Date removed
 reduced_column_names = [ elem for elem in df.columns.tolist() if elem not in ['Name', 'Date']]
 
 df =df[['Name','Date'] + reduced_column_names]
 
 
-
 #Convert duration column to minutes
 df.rename(columns={'Duration (Hours)': 'Study Block (Minutes)'}, inplace=True)
 df['Study Block (Minutes)'] = df['Study Block (Minutes)'].apply(lambda x: x*60)
-print(df)
+
 try:
     with pd.ExcelWriter("../data/result.xlsx", engine="openpyxl", mode="w", on_sheet_exists="replace") as writer:
         df.to_excel(writer, index=False)

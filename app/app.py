@@ -2,7 +2,7 @@ import sys
 import pandas as pd
 import numpy as np
 import openpyxl
-from datetime import date as dt, timedelta
+from datetime import date as dt, timedelta, datetime
 from helper import *
 
 date = dt.today() 
@@ -14,7 +14,7 @@ df['Duration (Hours)'] = df['Minutes']/60
 study_session = input_request("How long (in minutes) do you want to study each day?: ")
 
 
-
+#Getting the total study time and pomodoro splits
 while True:
     is_pomodoro = input('Do you want to schedule using the pomodoro technique? (y/n): ')
     
@@ -33,6 +33,18 @@ while True:
         break
     else:
         print("\n Please enter y/n \n")
+
+
+#Getting the time to study each day
+while True:
+    try:
+        print("What time would you like to start studying each day? \n")
+        a = datetime.strptime(input('Pleases specify the time in HHMM (24 hour) format: '), "%H%M")
+        print (a.strftime("%H:%M"))
+        break
+    except:
+        print ("Please enter correct time in HHMM format \n")
+        continue
 
 
 

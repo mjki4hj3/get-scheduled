@@ -94,8 +94,8 @@ df['Pomodoro Session'] = df['Study Block Summation (Minutes)'].apply(lambda x: n
 
 
 
-df.loc[0, 'Study DateTime - Start Time'] = study_date_time
-df.loc[0, 'Study DateTime - End Time'] =  study_date_time + timedelta(hours=study_block)
+df.loc[0, 'Start Time'] = study_date_time
+df.loc[0, 'End Time'] =  study_date_time + timedelta(hours=study_block)
 previous_date = df.loc[0, 'Date'].date()
 
 index = 1
@@ -107,39 +107,47 @@ while index < len(df):
     #if its the next date
     if previous_date < df.loc[index, 'Date'].date():
         #Next day
-        df.loc[index, 'Study DateTime - Start Time'] = df.loc[index, 'Date']
-        df.loc[index, 'Study DateTime - End Time'] = df.loc[index, 'Date'] + timedelta(hours=study_block)
-    
+        df.loc[index, 'Start Time'] = df.loc[index, 'Date']
+        df.loc[index, 'End Time'] = df.loc[index, 'Date'] + timedelta(hours=study_block)
     
     else:
         #Same day
-        if df.loc[index, 'Pomodoro Session'] - df.loc[index-1, 'Pomodoro Session'] > 0:
+        if df.loc[index, 'Pomodoro Session'] - df.loc[index-1, 'Pomodoro Session'] == 0:
             #Same Pomodoro Session
-            df.loc[index, 'Study DateTime - Start Time'] = df.loc[index-1, 'Study DateTime - End Time']
-            df.loc[index, 'Study DateTime - End Time'] = df.loc[index-1, 'Study DateTime - End Time']
+            df.loc[index, 'Start Time'] = df.loc[index-1, 'Start Time']
+            df.loc[index, 'End Time'] = df.loc[index-1, 'End Time']
         else:
             #New Pomodoro Session
-            df.loc[index, 'Study DateTime - Start Time'] = df.loc[index-1, 'Study DateTime - End Time']
-            df.loc[index, 'Study DateTime - End Time'] = df.loc[index, 'Study DateTime - Start Time'] + timedelta(hours=study_block)
+            df.loc[index, 'Start Time'] = df.loc[index-1, 'End Time']
+            df.loc[index, 'End Time'] = df.loc[index, 'Start Time'] + timedelta(hours=study_block)
     
     index +=1
     
 
-print(df[['Pomodoro Session', 'Study Block Summation (Minutes)', 'Study DateTime - Start Time', 'Study DateTime - End Time']])
-
-df['Date'] = pd.to_datetime(df['Date'], format='%d%m%Y')
 
 
+'''
+Formating Data Frame
+'''
 
-# Column names with Name and Date removed
+#Format date column
+df['Date'] = df['Date'].apply(lambda x: x.date())
+df['Start Time'] = df['Start Time'].apply(lambda x: x.time())
+df['End Time'] = df['End Time'].apply(lambda x: x.time())
+
+# Moving Name and Date to first and second column position
 reduced_column_names = [ elem for elem in df.columns.tolist() if elem not in ['Name', 'Date']]
-
 df =df[['Name','Date'] + reduced_column_names]
 
 
-#Convert duration column to minutes
+#Convert duration column to minutes and rename to study block minutes
 df.rename(columns={'Duration (Hours)': 'Study Block (Minutes)'}, inplace=True)
 df['Study Block (Minutes)'] = df['Study Block (Minutes)'].apply(lambda x: x*60)
+
+
+
+print(df[['Name', 'Date', 'Start Time', 'End Time']])
+
 
 try:
     with pd.ExcelWriter("../data/result.xlsx", engine="openpyxl", mode="w", on_sheet_exists="replace") as writer:

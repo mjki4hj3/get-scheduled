@@ -9,11 +9,11 @@ from helper import *
 date = dt.today() 
 df = pd.read_excel('../data/src-data.xlsx')
 
-df['Duration (Hours)'] = (df['Minutes']/60)
+# df['Duration (Hours)'] = (df['Minutes'])
 
 
 
-study_session = input_request("How long (in minutes) do you want to study each day?: ")
+# study_session = input_request("How long (in hours) do you want to study each day?: ")
 
 
 
@@ -21,9 +21,9 @@ def prepare_dataframe():
         
     df = pd.read_excel('../data/src-data.xlsx')
 
-    df['Duration (Hours)'] = df['Minutes']/60
+   # df['Duration (Hours)'] = df['Minutes']/60
 
-    study_session = input_request("How long (in minutes) do you want to study each day?: ")
+    study_session = input_request("How long (in hours) do you want to study each day?: ")
 
 
     #Getting the total study Datetime and pomodoro splits
@@ -62,11 +62,9 @@ def prepare_dataframe():
             print ("Please enter the specified format\n")
             continue
 
-
-
     #Datetime object
     study_date_time = study_date.replace(hour=study_time.hour, minute=study_time.minute)
-
+    
 
     sum = 0
     index = 0
@@ -74,7 +72,7 @@ def prepare_dataframe():
 
     while index < len(df):
 
-        sum += df.at[index, 'Duration (Hours)']
+        sum += df.at[index, 'Minutes']
 
         if sum < study_session:
             df.loc[index,"Date"] = new_date
@@ -83,7 +81,7 @@ def prepare_dataframe():
             new_date = new_date + timedelta(days=1)
             sum = 0 
         else:
-            splitting_function(index, sum, study_session, 'Duration (Hours)', df)
+            splitting_function(index, sum, study_session, 'Minutes', df)
             df = df.sort_index().reset_index(drop=True)
             df.loc[index, "Date"] = new_date
             new_date = new_date + timedelta(days=1)
@@ -91,19 +89,71 @@ def prepare_dataframe():
             
         index +=1  
 
+    # Splits Duration (Hours) column into study blocks (pomodoro sessions)
+    # df = study_block_splitter(df, study_block)    
+
+
+    # df['Study Block Summation (Minutes)'] = df['Minutes'].cumsum()
+
+    # #Pomodoro Sessions
+    # df['Pomodoro Session'] = df['Study Block Summation (Minutes)'].apply(lambda x: np.floor(x/(study_block)))
+
+   
     #Splits Duration (Hours) column into study blocks (pomodoro sessions)
-    df = study_block_splitter(df, study_block)    
+    df = study_block_splitter(df, study_duration)    
 
+    # Schedules topics into the user's defined study block length
+    sum = 0
+    index = 0
+    
+   
+    # print(f"Study_duration: {study_duration}")  
+    while index < len(df):
+        
+        sum += df.loc[index, 'Minutes']
+        
+        # print(f"sum: {sum}")
+        if sum == study_duration:
+            sum = 0
+        elif sum > study_duration:
+            df = pomodoro_scheduler(df, sum, index, study_duration)
+            df = df.sort_index().reset_index(drop=True)
+            sum = 0
+            #df['Duration (Hours)'] = df['Duration (Hours)'].round(5)
+        
+        index += 1
 
-    df['Study Block Summation (Minutes)'] = df['Duration (Hours)'].cumsum()*60
+        '''
+        Formating Data Frame
+        '''
+    print(df)
+
+    
+    df['Study Block Summation (Minutes)'] = df['Minutes'].cumsum()
+    
+    
+    index = 1
+    df.loc[0, "Pomodoro Session"] = 1
+    while index < len(df):
+        if df.loc[index,'Study Block Summation (Minutes)'] % study_duration == 0:
+            if df.loc[index, "Minutes"] == study_duration:
+                df.loc[index, "Pomodoro Session"] = df.loc[(index - 1), "Pomodoro Session"] + 1
+            else:
+                df.loc[index, "Pomodoro Session"] = df.loc[(index - 1), "Pomodoro Session"] 
+
+        else:
+            df.loc[index, "Pomodoro Session"] = np.ceil(df.loc[index, 'Study Block Summation (Minutes)']/study_duration)
+
+        index += 1
+
 
     #Pomodoro Sessions
-    df['Pomodoro Session'] = df['Study Block Summation (Minutes)'].apply(lambda x: np.floor(x/(60*study_block)))
+    # df['Pomodoro Session'] = df['Study Block Summation (Minutes)'].apply(lambda x: np.floor(x/(study_duration)))
 
-
+   
 
     df.loc[0, 'Start Time'] = study_date_time
-    df.loc[0, 'End Time'] =  study_date_time + timedelta(hours=study_block)
+    df.loc[0, 'End Time'] =  study_date_time + timedelta(minutes=study_duration)
     previous_date = df.loc[0, 'Date'].date()
 
     index = 1
@@ -115,56 +165,24 @@ def prepare_dataframe():
         #if its the next date
         if previous_date < df.loc[index, 'Date'].date():
             #Next day
+            print("Next day")
             df.loc[index, 'Start Time'] = df.loc[index, 'Date']
-            df.loc[index, 'End Time'] = df.loc[index, 'Date'] + timedelta(hours=study_block)
+            df.loc[index, 'End Time'] = df.loc[index, 'Date'] + timedelta(minutes=study_duration)
         
-        else:
+        else:    
             #Same day
             if df.loc[index, 'Pomodoro Session'] - df.loc[index-1, 'Pomodoro Session'] == 0:
                 #Same Pomodoro Session
+                
                 df.loc[index, 'Start Time'] = df.loc[index-1, 'Start Time']
                 df.loc[index, 'End Time'] = df.loc[index-1, 'End Time']
             else:
                 #New Pomodoro Session
                 df.loc[index, 'Start Time'] = df.loc[index-1, 'End Time']
-                df.loc[index, 'End Time'] = df.loc[index, 'Start Time'] + timedelta(hours=study_block)
+                df.loc[index, 'End Time'] = df.loc[index, 'Start Time'] + timedelta(minutes=study_duration)
         
         index +=1
         
-
-
-    # print(df)
-    #Splits Duration (Hours) column into study blocks (pomodoro sessions)
-    df = study_block_splitter(df, study_duration)    
-
-    print(df)
-    # Schedules topics into the user's defined study block length
-    sum = 0
-    index = 0
-
-    while index < len(df):
-        
-        sum += df.loc[index, 'Duration (Hours)']
-
-        if sum == study_duration:
-            sum = 0
-        elif sum > study_duration:
-            pomodoro_scheduler(df, sum, index, study_duration)
-            df = df.sort_index().reset_index(drop=True)
-            sum = 0
-            df['Duration (Hours)'] = df['Duration (Hours)'].round(5)
-        
-        index += 1
-
-        '''
-        Formating Data Frame
-        '''
-
-
-
-    #Pomodoro Sessions
-    df['Pomodoro Session'] = df['Study Block Summation (Minutes)'].apply(lambda x: np.floor(x/(60*study_block)))
-
 
     # Column names with Name and Date removed
     reduced_column_names = [ elem for elem in df.columns.tolist() if elem not in ['Name', 'Date']]
@@ -173,10 +191,10 @@ def prepare_dataframe():
 
 
     #Convert duration column to minutes and rename to study block minutes
-    df.rename(columns={'Duration (Hours)': 'Study Block (Minutes)'}, inplace=True)
-    df['Study Block (Minutes)'] = df['Study Block (Minutes)'].apply(lambda x: x*60)
+    df.rename(columns={'Minutes': 'Study Block (Minutes)'}, inplace=True)
+    #df['Study Block (Minutes)'] = df['Study Block (Minutes)'].apply(lambda x: x*60)
 
-    print(df[['Name', 'Date', 'Pomodoro Session', 'Start Time', 'End Time']])
+    print(df[['Name', 'Date', 'Study Block Summation (Minutes)', 'Pomodoro Session', 'Start Time', 'End Time']])
 
     try:
         with pd.ExcelWriter("../data/result.xlsx", engine="openpyxl", mode="w", on_sheet_exists="replace") as writer:

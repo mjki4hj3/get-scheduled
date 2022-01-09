@@ -1,23 +1,62 @@
 import sys
+import os
 import pandas as pd
 import numpy as np
 import openpyxl
 from datetime import date as dt, timedelta, datetime
 from helper import *
 
-def main():
+
+
+
+def prepare_dataframe():
+        
     df = pd.read_excel('../data/src-data.xlsx')
 
     df['Duration (Hours)'] = df['Minutes']/60
 
+    study_session = input_request("How long (in minutes) do you want to study each day?: ")
 
-    study_session = 120/60
-    study_duration = 20/60
-    study_break = 10/60
-    study_block= study_duration + study_break
-    study_time = datetime.strptime('13:00', "%H:%M")
-    study_date = datetime.strptime('08/01/2022', "%d/%m/%Y")
 
+    #Getting the total study Datetime and pomodoro splits
+    while True:
+        is_pomodoro = input('Do you want to schedule using the pomodoro technique? (y/n): ')
+        
+        if is_pomodoro.lower() in ['y', 'yes', 1, 'true']:
+            study_duration = input_request("How long (in minutes) do you want to study for during each pomodoro session?: ")
+            break_duration = input_request("How long (in minutes) do you want the break to be?: ")
+            study_block = study_duration + break_duration
+            
+            if study_block > study_session:
+                print("\n The pomodoro session cannot be longer than the total study session \n")
+                continue
+            break
+        
+        elif is_pomodoro.lower() in ['n', 'no', 0, 'false']:
+            study_block = input_request("How long (in minutes) do you want to study for each session?: ")
+            break
+        else:
+            print("\n Please enter y/n \n")
+
+
+    #Getting the time to study each day
+    while True:
+        try:
+            
+            print("What date would you like to start study? \n")
+            study_date = datetime.strptime(input('Please specify the date in the dd/mm/yyyy format: '), "%d/%m/%Y")
+            
+            print("What time would you like to start studying each day? \n")
+            study_time = datetime.strptime(input('Please specify the time in the HH:MM (24 hour) format: '), "%H:%M")
+
+            break
+        except:
+            print ("Please enter the specified format\n")
+            continue
+
+
+
+    #Datetime object
     study_date_time = study_date.replace(hour=study_time.hour, minute=study_time.minute)
 
 
@@ -92,8 +131,10 @@ def main():
 
     #Format date column
     df['Date'] = df['Date'].apply(lambda x: x.date())
+    
     df['Start Time'] = df['Start Time'].apply(lambda x: x.time())
     df['End Time'] = df['End Time'].apply(lambda x: x.time())
+    
 
     # Moving Name and Date to first and second column position
     reduced_column_names = [ elem for elem in df.columns.tolist() if elem not in ['Name', 'Date']]
@@ -104,6 +145,7 @@ def main():
     df.rename(columns={'Duration (Hours)': 'Study Block (Minutes)'}, inplace=True)
     df['Study Block (Minutes)'] = df['Study Block (Minutes)'].apply(lambda x: x*60)
 
+    print(df[['Name', 'Date', 'Pomodoro Session', 'Start Time', 'End Time']])
 
     try:
         with pd.ExcelWriter("../data/result.xlsx", engine="openpyxl", mode="w", on_sheet_exists="replace") as writer:
@@ -114,3 +156,6 @@ def main():
         print("Error - please try run app again")
     
     return df
+
+if __name__ == '__main__':
+    prepare_dataframe()

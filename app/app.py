@@ -1,11 +1,16 @@
 import sys
+import os
 import pandas as pd
 import numpy as np
 import openpyxl
 from datetime import date as dt, timedelta, datetime
 from helper import *
 
-def main():
+
+
+
+def prepare_dataframe():
+        
     df = pd.read_excel('../data/src-data.xlsx')
 
     df['Duration (Hours)'] = df['Minutes']/60
@@ -16,7 +21,7 @@ def main():
     study_break = 10/60
     study_block= study_duration + study_break
     study_time = datetime.strptime('13:00', "%H:%M")
-    study_date = datetime.strptime('08/01/2022', "%d/%m/%Y")
+    study_date = datetime.strptime('09/01/2022', "%d/%m/%Y")
 
     study_date_time = study_date.replace(hour=study_time.hour, minute=study_time.minute)
 
@@ -92,8 +97,10 @@ def main():
 
     #Format date column
     df['Date'] = df['Date'].apply(lambda x: x.date())
+    
     df['Start Time'] = df['Start Time'].apply(lambda x: x.time())
     df['End Time'] = df['End Time'].apply(lambda x: x.time())
+    
 
     # Moving Name and Date to first and second column position
     reduced_column_names = [ elem for elem in df.columns.tolist() if elem not in ['Name', 'Date']]
@@ -104,6 +111,7 @@ def main():
     df.rename(columns={'Duration (Hours)': 'Study Block (Minutes)'}, inplace=True)
     df['Study Block (Minutes)'] = df['Study Block (Minutes)'].apply(lambda x: x*60)
 
+    print(df[['Name', 'Date', 'Start Time', 'End Time']])
 
     try:
         with pd.ExcelWriter("../data/result.xlsx", engine="openpyxl", mode="w", on_sheet_exists="replace") as writer:
@@ -114,3 +122,6 @@ def main():
         print("Error - please try run app again")
     
     return df
+
+if __name__ == '__main__':
+    prepare_dataframe()

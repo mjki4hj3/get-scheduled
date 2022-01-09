@@ -6,6 +6,14 @@ import openpyxl
 from datetime import date as dt, timedelta, datetime
 from helper import *
 
+date = dt.today() 
+df = pd.read_excel('../data/src-data.xlsx')
+
+df['Duration (Hours)'] = (df['Minutes']/60)
+
+
+
+study_session = input_request("How long (in minutes) do you want to study each day?: ")
 
 
 
@@ -125,19 +133,42 @@ def prepare_dataframe():
         
 
 
-    '''
-    Formating Data Frame
-    '''
+    # print(df)
+    #Splits Duration (Hours) column into study blocks (pomodoro sessions)
+    df = study_block_splitter(df, study_duration)    
 
-    #Format date column
-    df['Date'] = df['Date'].apply(lambda x: x.date())
-    
-    df['Start Time'] = df['Start Time'].apply(lambda x: x.time())
-    df['End Time'] = df['End Time'].apply(lambda x: x.time())
-    
+    print(df)
+    # Schedules topics into the user's defined study block length
+    sum = 0
+    index = 0
 
-    # Moving Name and Date to first and second column position
+    while index < len(df):
+        
+        sum += df.loc[index, 'Duration (Hours)']
+
+        if sum == study_duration:
+            sum = 0
+        elif sum > study_duration:
+            pomodoro_scheduler(df, sum, index, study_duration)
+            df = df.sort_index().reset_index(drop=True)
+            sum = 0
+            df['Duration (Hours)'] = df['Duration (Hours)'].round(5)
+        
+        index += 1
+
+        '''
+        Formating Data Frame
+        '''
+
+
+
+    #Pomodoro Sessions
+    df['Pomodoro Session'] = df['Study Block Summation (Minutes)'].apply(lambda x: np.floor(x/(60*study_block)))
+
+
+    # Column names with Name and Date removed
     reduced_column_names = [ elem for elem in df.columns.tolist() if elem not in ['Name', 'Date']]
+
     df =df[['Name','Date'] + reduced_column_names]
 
 

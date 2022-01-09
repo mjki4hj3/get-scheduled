@@ -23,6 +23,7 @@ def prepare_dataframe():
     study_time = datetime.strptime('13:00', "%H:%M")
     study_date = datetime.strptime('09/01/2022', "%d/%m/%Y")
 
+    #Datetime object
     study_date_time = study_date.replace(hour=study_time.hour, minute=study_time.minute)
 
 
@@ -111,7 +112,7 @@ def prepare_dataframe():
     df.rename(columns={'Duration (Hours)': 'Study Block (Minutes)'}, inplace=True)
     df['Study Block (Minutes)'] = df['Study Block (Minutes)'].apply(lambda x: x*60)
 
-    print(df[['Name', 'Date', 'Start Time', 'End Time']])
+    print(df[['Name', 'Date', 'Pomodoro Session', 'Start Time', 'End Time']])
 
     try:
         with pd.ExcelWriter("../data/result.xlsx", engine="openpyxl", mode="w", on_sheet_exists="replace") as writer:

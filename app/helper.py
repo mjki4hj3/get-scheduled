@@ -44,12 +44,12 @@ def study_block_splitter(df, study_duration):
     
     while index < len(df):
 
-        if df.loc[index, "Duration (Hours)"] > study_duration:
+        if df.loc[index, "Minutes"] > study_duration:
 
-            split = df.loc[index, "Duration (Hours)"] - study_duration
-            df.loc[index, "Duration (Hours)"] = study_duration
+            split = df.loc[index, "Minutes"] - study_duration
+            df.loc[index, "Minutes"] = study_duration
             df.loc[index + slot] = df.loc[index]
-            df.loc[(index + slot), "Duration (Hours)"] = split
+            df.loc[(index + slot), "Minutes"] = split
             df = df.sort_index().reset_index(drop=True)
             slot += 0.01
             
@@ -64,31 +64,51 @@ def study_block_splitter(df, study_duration):
 def pomodoro_scheduler(df, sum, index, study_duration):
 
     slot = 0.01
-    space = study_duration - (sum - df.loc[index, "Duration (Hours)"])
+    space = study_duration - (sum - df.loc[index, "Minutes"])
     # print(f"Space: {space}")
-    df.loc[index, "Duration (Hours)"] = space
+    df.loc[index, "Minutes"] = space
     excess = sum - study_duration
     df.loc[(index + slot)] = df.loc[index]
-    df.loc[(index + slot), "Duration (Hours)"] = excess
+    df.loc[(index + slot), "Minutes"] = excess
 
+    return df
 
 
 
 
 def input_request(message): 
-    while True:
-        try:
-            max_duration = float(input(message))
-            if max_duration > 0:
-                break
-            elif max_duration == 0:
-                print("Please enter a non-zero study duration")
+    if message == "How long (in hours) do you want to study each day?: ":
+        while True:
+            try:
+                max_duration = float(input(message))
+                if max_duration > 0:
+                    break
+                elif max_duration == 0:
+                    print("Please enter a non-zero study duration")
+                    continue
+                else:
+                    print("Please enter a non-negative study duration")
+                    continue
+            except:
+                print("Please enter a number")
                 continue
-            else:
-                print("Please enter a non-negative study duration")
+            
+        return max_duration*60
+    
+    else:
+        while True:
+            try:
+                max_duration = float(input(message))
+                if max_duration > 0:
+                    break
+                elif max_duration == 0:
+                    print("Please enter a non-zero study duration")
+                    continue
+                else:
+                    print("Please enter a non-negative study duration")
+                    continue
+            except:
+                print("Please enter a number")
                 continue
-        except:
-            print("Please enter a number")
-            continue
-        
-    return max_duration/60
+            
+        return max_duration

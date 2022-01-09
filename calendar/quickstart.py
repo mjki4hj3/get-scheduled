@@ -1,7 +1,8 @@
 from __future__ import print_function
 
 import datetime
-import os.path
+import os
+import sys
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -10,10 +11,15 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
 
+sys.path.append(os.path.dirname(__file__) + "..")
+from app import app
+df = app.prepare_dataframe()
+
 SCOPES = ['https://www.googleapis.com/auth/calendar']
 
 
 def main():
+
     """Shows basic usage of the Google Calendar API.
     Prints the start and name of the next 10 events on the user's calendar.
     """
@@ -38,27 +44,33 @@ def main():
     try:
         service = build('calendar', 'v3', credentials=creds)
         
-        n = datetime.datetime.now(datetime.timezone.utc).astimezone()
+        events = []
+        index=0
         
-        n_later = n + datetime.timedelta(hours=1)
+        while index < len(df):
+            event = {
+                'summary': df.loc[index, 'Name'],
+                'description': df.loc[index, 'Name'],
+                'start': {
+                    #Convert from timestamps datatype to datetime object, add local timezone and then
+                    # convert to required format
+                    'dateTime': df.loc[index, 'Start Time'].to_pydatetime().astimezone().isoformat()
+                },
+                'end': {
+                    'dateTime': df.loc[index, 'End Time'].to_pydatetime().astimezone().isoformat()     
+                    }
+            }
+            events.append(event)
+            index += 1
+            
+        #print(df.loc[0, 'Start Time'].isoformat())
+        #print(df.loc[0, 'Start Time'].to_pydatetime().astimezone().isoformat())
         
-        n = n.isoformat()
-        n_later = n_later.isoformat()
-
-        event = {
-        'summary': 'Todays Test',
-        'location': '10 Downing Street, London',
-        'description': 'A test calendar event',
-        'start': {
-            'dateTime': n
-        },
-        'end': {
-            'dateTime': n_later          
-        }
-        }
-
-        event = service.events().insert(calendarId='primary', body=event).execute()
-        print ('Event created: %s' % (event.get('htmlLink')))
+        
+        for event in events:
+            event_item = service.events().insert(calendarId='primary', body=event).execute()
+        
+        print ('Event created: %s' % (event_item.get('htmlLink')))
 
     except HttpError as error:
         print('An error occurred: %s' % error)

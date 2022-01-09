@@ -55,8 +55,10 @@ def prepare_dataframe():
             continue
 
 
+
     #Datetime object
     study_date_time = study_date.replace(hour=study_time.hour, minute=study_time.minute)
+
 
     sum = 0
     index = 0

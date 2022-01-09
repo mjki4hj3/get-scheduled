@@ -19,10 +19,6 @@ def splitting_function(index, sum, max_duration, column_to_split, df):
     df.at[index, column_to_split] = space # scheduling the oversized topic with remainder time
     
     # splitting the remainder of the oversized topic 
-    
-    
-
-
     slot = 0.01
     # splitting oversized into as many study slots equal to defined studyperiod 
     while excess > max_duration:
@@ -41,17 +37,17 @@ def splitting_function(index, sum, max_duration, column_to_split, df):
 
 
 
-def study_block_splitter(df, study_block):
+def study_block_splitter(df, study_duration):
 
     index = 0
     slot = 0.01 
     
     while index < len(df):
 
-        if df.loc[index, "Duration (Hours)"] > study_block:
+        if df.loc[index, "Duration (Hours)"] > study_duration:
 
-            split = df.loc[index, "Duration (Hours)"] - study_block
-            df.loc[index, "Duration (Hours)"] = study_block
+            split = df.loc[index, "Duration (Hours)"] - study_duration
+            df.loc[index, "Duration (Hours)"] = study_duration
             df.loc[index + slot] = df.loc[index]
             df.loc[(index + slot), "Duration (Hours)"] = split
             df = df.sort_index().reset_index(drop=True)
@@ -65,9 +61,15 @@ def study_block_splitter(df, study_block):
 
 
 
+def pomodoro_scheduler(df, sum, index, study_duration):
 
-
-
+    slot = 0.01
+    space = study_duration - (sum - df.loc[index, "Duration (Hours)"])
+    # print(f"Space: {space}")
+    df.loc[index, "Duration (Hours)"] = space
+    excess = sum - study_duration
+    df.loc[(index + slot)] = df.loc[index]
+    df.loc[(index + slot), "Duration (Hours)"] = excess
 
 
 

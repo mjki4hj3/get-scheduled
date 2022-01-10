@@ -53,9 +53,10 @@ def prepare_dataframe():
     #         continue
 
 
-    study_session = 180
-    study_duration = 45
-    break_duration = 15
+    study_session = 120
+    study_duration = 20
+    break_duration = 10
+    study_block = study_duration + break_duration
     
     study_date = datetime.strptime('11/01/2022', "%d/%m/%Y")
     study_time= datetime.strptime('13:00', "%H:%M")
@@ -87,29 +88,34 @@ def prepare_dataframe():
             
         index +=1  
 
-   
-    #Splits Minutes column into study blocks (pomodoro sessions)
-    df = study_block_splitter(df, study_duration)    
-
     # Schedules topics into the user's defined study block length
     sum = 0
     index = 0
     
-   
-    # print(f"Study_duration: {study_duration}")  
     while index < len(df):
         
         sum += df.loc[index, 'Minutes']
         
-        # print(f"sum: {sum}")
+       
         if sum == study_duration:
             sum = 0
         elif sum > study_duration:
             df = pomodoro_scheduler(df, sum, index, study_duration)
-            df = df.sort_index().reset_index(drop=True)
             sum = 0
         
+        #print(f'\n index: {index} \n')
+        #print(df)
+        df = df.sort_index().reset_index(drop=True)  
         index += 1
+        
+    #Splits Minutes column into study blocks (pomodoro sessions)
+    df = study_block_splitter(df, study_duration)    
+
+    print(df)
+   
+    '''
+    Splitting topics into study durations
+    '''
 
     '''
     Formating Data Frame
@@ -180,10 +186,9 @@ def prepare_dataframe():
 
     #Convert duration column to minutes and rename to study block minutes
     df.rename(columns={'Minutes': 'Study Block (Minutes)'}, inplace=True)
-    #df['Study Block (Minutes)'] = df['Study Block (Minutes)'].apply(lambda x: x*60)
+    
 
-    print(df[['Pomodoro Session', 'Study Block Summation (Minutes)', 'Start Time', 'End Time', 'Break Time']])
-
+    print(df)
     try:
         with pd.ExcelWriter("../data/result.xlsx", engine="openpyxl", mode="w", on_sheet_exists="replace") as writer:
             df.to_excel(writer, index=False)

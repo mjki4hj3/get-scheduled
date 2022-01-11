@@ -11,46 +11,46 @@ date = dt.today()
 def prepare_dataframe():
 
     df = pd.read_excel('../data/sample-data.xlsx')
-    # study_session = input_request("How long (in hours) do you want to study each day?: ")
+    study_session = input_request("How long (in hours) do you want to study each day?: ")
 
 
-    # #Getting the total study Datetime and pomodoro splits
-    # while True:
+    #Getting the total study Datetime and pomodoro splits
+    while True:
 
-    #     study_duration = input_request("How long (in minutes) do you want to study for during each pomodoro session?: ")
-    #     break_duration = input_request("How long (in minutes) do you want the break to be?: ")
-    #     study_block = study_duration + break_duration
+        study_duration = input_request("How long (in minutes) do you want to study for during each pomodoro session?: ")
+        break_duration = input_request("How long (in minutes) do you want the break to be?: ")
+        study_block = study_duration + break_duration
         
-    #     if study_block > study_session:
-    #         print("\n The pomodoro session cannot be longer than the total study session \n")
-    #         continue
-    #     break
+        if study_block > study_session:
+            print("\n The pomodoro session cannot be longer than the total study session \n")
+            continue
+        break
 
 
 
-    # #Getting the time to study each day
-    # while True:
-    #     try:
+    #Getting the time to study each day
+    while True:
+        try:
             
-    #         print("What date would you like to start study? \n")
-    #         study_date = datetime.strptime(input('Please specify the date in the dd/mm/yyyy format: '), "%d/%m/%Y")
+            print("What date would you like to start study? \n")
+            study_date = datetime.strptime(input('Please specify the date in the dd/mm/yyyy format: '), "%d/%m/%Y")
             
-    #         print("What time would you like to start studying each day? \n")
-    #         study_time = datetime.strptime(input('Please specify the time in the HH:MM (24 hour) format: '), "%H:%M")
+            print("What time would you like to start studying each day? \n")
+            study_time = datetime.strptime(input('Please specify the time in the HH:MM (24 hour) format: '), "%H:%M")
 
-    #         break
-    #     except:
-    #         print ("Please enter the specified format\n")
-    #         continue
+            break
+        except:
+            print ("Please enter the specified format\n")
+            continue
 
 
-    study_session = 30
-    study_duration = 30
-    break_duration = 0
-    study_block = study_duration + break_duration
+    # study_session = 30
+    # study_duration = 30
+    # break_duration = 0
+    # study_block = study_duration + break_duration
     
-    study_date = datetime.strptime('11/01/2022', "%d/%m/%Y")
-    study_time= datetime.strptime('13:00', "%H:%M")
+    # study_date = datetime.strptime('11/01/2022', "%d/%m/%Y")
+    # study_time= datetime.strptime('13:00', "%H:%M")
     
     #Datetime object
     study_date_time = study_date.replace(hour=study_time.hour, minute=study_time.minute)
@@ -105,7 +105,7 @@ def prepare_dataframe():
 
 
     '''
-    Formating Data Frame
+    Cummulatively summing minutes column
     '''
     
     df['Study Block Summation (Minutes)'] = df['Minutes'].cumsum()
@@ -183,7 +183,7 @@ def prepare_dataframe():
     try:
         with pd.ExcelWriter("../data/result.xlsx", engine="openpyxl", mode="w", on_sheet_exists="replace") as writer:
             df_for_excel.to_excel(writer, index=False)
-        print("Schedule is ready for viewing")
+        print("Calendar is being populated ...")
     except:
         #Improve error message
         print("Error - please try run app again")

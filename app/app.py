@@ -7,34 +7,25 @@ from datetime import date as dt, timedelta, datetime
 from helper import *
 
 date = dt.today() 
-df = pd.read_excel('../data/src-data.xlsx')
 
 def prepare_dataframe():
-        
-    df = pd.read_excel('../data/src-data.xlsx')
 
-    #study_session = input_request("How long (in hours) do you want to study each day?: ")
+    df = pd.read_excel('../data/sample-data.xlsx')
+    # study_session = input_request("How long (in hours) do you want to study each day?: ")
 
 
     # #Getting the total study Datetime and pomodoro splits
     # while True:
-    #     is_pomodoro = input('Do you want to schedule using the pomodoro technique? (y/n): ')
+
+    #     study_duration = input_request("How long (in minutes) do you want to study for during each pomodoro session?: ")
+    #     break_duration = input_request("How long (in minutes) do you want the break to be?: ")
+    #     study_block = study_duration + break_duration
         
-    #     if is_pomodoro.lower() in ['y', 'yes', 1, 'true']:
-    #         study_duration = input_request("How long (in minutes) do you want to study for during each pomodoro session?: ")
-    #         break_duration = input_request("How long (in minutes) do you want the break to be?: ")
-    #         study_block = study_duration + break_duration
-            
-    #         if study_block > study_session:
-    #             print("\n The pomodoro session cannot be longer than the total study session \n")
-    #             continue
-    #         break
-        
-    #     elif is_pomodoro.lower() in ['n', 'no', 0, 'false']:
-    #         study_block = input_request("How long (in minutes) do you want to study for each session?: ")
-    #         break
-    #     else:
-    #         print("\n Please enter y/n \n")
+    #     if study_block > study_session:
+    #         print("\n The pomodoro session cannot be longer than the total study session \n")
+    #         continue
+    #     break
+
 
 
     # #Getting the time to study each day
@@ -53,9 +44,9 @@ def prepare_dataframe():
     #         continue
 
 
-    study_session = 120
-    study_duration = 20
-    break_duration = 10
+    study_session = 30
+    study_duration = 30
+    break_duration = 0
     study_block = study_duration + break_duration
     
     study_date = datetime.strptime('11/01/2022', "%d/%m/%Y")
@@ -88,7 +79,10 @@ def prepare_dataframe():
             
         index +=1  
 
-    # Schedules topics into the user's defined study block length
+   
+    '''
+    Splitting topics into study durations
+    '''
     sum = 0
     index = 0
     
@@ -102,20 +96,13 @@ def prepare_dataframe():
         elif sum > study_duration:
             df = pomodoro_scheduler(df, sum, index, study_duration)
             sum = 0
-        
-        #print(f'\n index: {index} \n')
-        #print(df)
+
         df = df.sort_index().reset_index(drop=True)  
         index += 1
         
     #Splits Minutes column into study blocks (pomodoro sessions)
     df = study_block_splitter(df, study_duration)    
 
-    print(df)
-   
-    '''
-    Splitting topics into study durations
-    '''
 
     '''
     Formating Data Frame
@@ -141,11 +128,9 @@ def prepare_dataframe():
 
         index += 1
 
-
-
-
-   
-
+    '''
+    Adding in start, end and break times
+    '''
     df.loc[0, 'Start Time'] = study_date_time
     df.loc[0, 'End Time'] =  study_date_time + timedelta(minutes=study_duration)
     df.loc[0, 'Break Time'] =  df.loc[0, 'End Time'] + timedelta(minutes=break_duration)
@@ -183,15 +168,21 @@ def prepare_dataframe():
 
     df =df[['Name','Date'] + reduced_column_names]
 
-
-    #Convert duration column to minutes and rename to study block minutes
-    df.rename(columns={'Minutes': 'Study Block (Minutes)'}, inplace=True)
     
+    #Modified df for excel output
+    df_for_excel = df.copy()
+    
+    df_for_excel['Start Time'] = pd.to_datetime(df_for_excel['Start Time'])
+    df_for_excel['End Time'] = pd.to_datetime(df_for_excel['End Time'])
+    df_for_excel['Break Time'] = pd.to_datetime(df_for_excel['Break Time'])
+    
+    df_for_excel['Start Time'] = df_for_excel['Start Time'].dt.time
+    df_for_excel['End Time'] = df_for_excel['End Time'].dt.time
 
-    print(df)
+
     try:
         with pd.ExcelWriter("../data/result.xlsx", engine="openpyxl", mode="w", on_sheet_exists="replace") as writer:
-            df.to_excel(writer, index=False)
+            df_for_excel.to_excel(writer, index=False)
         print("Schedule is ready for viewing")
     except:
         #Improve error message

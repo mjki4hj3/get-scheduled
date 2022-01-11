@@ -11,6 +11,9 @@
 pip install pipenv
 ```
 
+3. Add your course list in the data folder. Note: you must use the exact column headers and name the file sample-data.xlsx
+
+
 3. Create virtual python environment and install dependencies
 ```bash 
 pipenv shell && pipenv install 

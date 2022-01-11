@@ -46,7 +46,7 @@ def main():
         
         events = []
         index=0
-        print(len(df))
+
         while index < len(df):
             study_event = {
                 'summary': df.loc[index, 'Name'],

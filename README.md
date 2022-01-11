@@ -30,39 +30,30 @@ cd calendar && python quickstart.py
 
 - Have fun
 - Solve a real-world problem using Python
-- Gain practical experience in using collaborative tools such as GitHub & Trello
+- Gain practical experience in using collaborative tools such as GitHub and Trello 
 
 ## Project Objectives:
+- Create a schedule that serves as a guide for when to study and when to take breaks
+- A python app that takes in a course list (excel or csv) with duration of each topic (in this case a video course), as shown in Table 1, and outputs a study schedule based on parameters inputted by the user (e.g. study duration/day, break duration etc).
+- Outputted study schedule then gets automatically put into your Google Calendar via an API call
 
-- Work on a project that has an overlap with our interests and capabilities -> Get your video courses scheduled
-- A python app that takes in a video course list (excel or csv) with duration of each video, as shown in Table 1, and outputs a study schedule, as shown in Table 2, based on parameters inputted by the user (e.g. study duration/day).
-
-<p align='center'><img src=images/Tables.png width=800px height= 336px></p>
-
-## Project Timeline/Time commitment:
-
-- Time commitment: Maximum 3 weeks
-
-## Who this project might be of interest to:
-
-- Beginners who have no clue what side project to do for their portfolio
-- Aspiring python developers & data scientists/analysts as we will be working with Panadas, Jupyter Notebooks and Numpy
-
-## Requirements:
-
-- Basic Python knowledge
-- Familiarity with Git & GitHub
-- Commitment
+<p align='center'><img src=images/Tables.jpeg width=300px height= 336px></p>
 
 
-## Desirables:
+## Current Outputs
 
-- Worked with Jupyter Notebooks, Pandas and Numpy
+- Excel schedule outputed based on a [pomodoro split](https://www.youtube.com/watch?v=1pADI_eZ_-U) of 45 minutes of study and 15 minutes break
 
----
+<p align='center'><img src=images/outputted-study-schedule.png width=800px height= 636px></p>
+
+- Calendar events that were inserted based on above study schedule
+
+<p align='center'><img src=images/google-calendar-schedule.jpeg width=500px height= 636px></p>
+
+## Future Works
+- Current ongoing and future developments of this project can be seen detailed in the milestones tab
+
 ## Resources
-
-
 
 ### Setup
 
@@ -80,3 +71,7 @@ cd calendar && python quickstart.py
 [Pandas Tutorials](https://pandas.pydata.org/pandas-docs/stable/getting_started/tutorials.html)
 
 [Pandas Cheat Sheet](https://pandas.pydata.org/Pandas_Cheat_Sheet.pdf)
+
+### Information
+
+[What is the pomodoro study technique?](https://www.youtube.com/watch?v=1pADI_eZ_-U)

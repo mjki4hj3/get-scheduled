@@ -46,9 +46,9 @@ def main():
         
         events = []
         index=0
-        
+
         while index < len(df):
-            event = {
+            study_event = {
                 'summary': df.loc[index, 'Name'],
                 'description': df.loc[index, 'Name'],
                 'start': {
@@ -60,11 +60,23 @@ def main():
                     'dateTime': df.loc[index, 'End Time'].to_pydatetime().astimezone().isoformat()     
                     }
             }
-            events.append(event)
-            index += 1
+            if index+1 < len(df):
+                if df.loc[index+1, 'Pomodoro Session'] - df.loc[index, 'Pomodoro Session'] > 0:
+                    break_event = {
+                        'summary': 'Pomodoro Break',
+                        'description': 'Pomodoro Break',
+                        'start': {
+                            'dateTime': df.loc[index, 'End Time'].to_pydatetime().astimezone().isoformat()
+                        },
+                        'end': {
+                            'dateTime': df.loc[index, 'Break Time'].to_pydatetime().astimezone().isoformat()     
+                            },
+                        'colorId': 2
+                    }
+                    events.append(break_event)
             
-        #print(df.loc[0, 'Start Time'].isoformat())
-        #print(df.loc[0, 'Start Time'].to_pydatetime().astimezone().isoformat())
+            events.append(study_event)            
+            index += 1
         
         
         for event in events:

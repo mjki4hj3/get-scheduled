@@ -7,44 +7,25 @@ from datetime import date as dt, timedelta, datetime
 from helper import *
 
 date = dt.today() 
-df = pd.read_excel('../data/src-data.xlsx')
-
-# df['Duration (Hours)'] = (df['Minutes'])
-
-
-
-# study_session = input_request("How long (in hours) do you want to study each day?: ")
-
-
 
 def prepare_dataframe():
-        
-    df = pd.read_excel('../data/src-data.xlsx')
 
-   # df['Duration (Hours)'] = df['Minutes']/60
-
+    df = pd.read_excel('../data/sample-data.xlsx')
     study_session = input_request("How long (in hours) do you want to study each day?: ")
 
 
     #Getting the total study Datetime and pomodoro splits
     while True:
-        is_pomodoro = input('Do you want to schedule using the pomodoro technique? (y/n): ')
+
+        study_duration = input_request("How long (in minutes) do you want to study for during each pomodoro session?: ")
+        break_duration = input_request("How long (in minutes) do you want the break to be?: ")
+        study_block = study_duration + break_duration
         
-        if is_pomodoro.lower() in ['y', 'yes', 1, 'true']:
-            study_duration = input_request("How long (in minutes) do you want to study for during each pomodoro session?: ")
-            break_duration = input_request("How long (in minutes) do you want the break to be?: ")
-            study_block = study_duration + break_duration
-            
-            if study_block > study_session:
-                print("\n The pomodoro session cannot be longer than the total study session \n")
-                continue
-            break
-        
-        elif is_pomodoro.lower() in ['n', 'no', 0, 'false']:
-            study_block = input_request("How long (in minutes) do you want to study for each session?: ")
-            break
-        else:
-            print("\n Please enter y/n \n")
+        if study_block > study_session:
+            print("\n The pomodoro session cannot be longer than the total study session \n")
+            continue
+        break
+
 
 
     #Getting the time to study each day
@@ -62,6 +43,15 @@ def prepare_dataframe():
             print ("Please enter the specified format\n")
             continue
 
+
+    # study_session = 30
+    # study_duration = 30
+    # break_duration = 0
+    # study_block = study_duration + break_duration
+    
+    # study_date = datetime.strptime('11/01/2022', "%d/%m/%Y")
+    # study_time= datetime.strptime('13:00', "%H:%M")
+    
     #Datetime object
     study_date_time = study_date.replace(hour=study_time.hour, minute=study_time.minute)
     
@@ -89,48 +79,40 @@ def prepare_dataframe():
             
         index +=1  
 
-    # Splits Duration (Hours) column into study blocks (pomodoro sessions)
-    # df = study_block_splitter(df, study_block)    
-
-
-    # df['Study Block Summation (Minutes)'] = df['Minutes'].cumsum()
-
-    # #Pomodoro Sessions
-    # df['Pomodoro Session'] = df['Study Block Summation (Minutes)'].apply(lambda x: np.floor(x/(study_block)))
-
    
-    #Splits Duration (Hours) column into study blocks (pomodoro sessions)
-    df = study_block_splitter(df, study_duration)    
-
-    # Schedules topics into the user's defined study block length
+    '''
+    Splitting topics into study durations
+    '''
     sum = 0
     index = 0
     
-   
-    # print(f"Study_duration: {study_duration}")  
     while index < len(df):
         
         sum += df.loc[index, 'Minutes']
         
-        # print(f"sum: {sum}")
+       
         if sum == study_duration:
             sum = 0
         elif sum > study_duration:
             df = pomodoro_scheduler(df, sum, index, study_duration)
-            df = df.sort_index().reset_index(drop=True)
             sum = 0
-            #df['Duration (Hours)'] = df['Duration (Hours)'].round(5)
-        
+
+        df = df.sort_index().reset_index(drop=True)  
         index += 1
+        
+    #Splits Minutes column into study blocks (pomodoro sessions)
+    df = study_block_splitter(df, study_duration)    
 
-        '''
-        Formating Data Frame
-        '''
-    print(df)
 
+    '''
+    Cummulatively summing minutes column
+    '''
     
     df['Study Block Summation (Minutes)'] = df['Minutes'].cumsum()
     
+    '''
+    Pomodorotion sessions count
+    '''
     
     index = 1
     df.loc[0, "Pomodoro Session"] = 1
@@ -146,40 +128,37 @@ def prepare_dataframe():
 
         index += 1
 
-
-    #Pomodoro Sessions
-    # df['Pomodoro Session'] = df['Study Block Summation (Minutes)'].apply(lambda x: np.floor(x/(study_duration)))
-
-   
-
+    '''
+    Adding in start, end and break times
+    '''
     df.loc[0, 'Start Time'] = study_date_time
     df.loc[0, 'End Time'] =  study_date_time + timedelta(minutes=study_duration)
+    df.loc[0, 'Break Time'] =  df.loc[0, 'End Time'] + timedelta(minutes=break_duration)
     previous_date = df.loc[0, 'Date'].date()
 
     index = 1
 
-
     while index < len(df):
         previous_date = df.loc[index-1, 'Date'].date()
-        
-        #if its the next date
+
         if previous_date < df.loc[index, 'Date'].date():
             #Next day
-            print("Next day")
             df.loc[index, 'Start Time'] = df.loc[index, 'Date']
             df.loc[index, 'End Time'] = df.loc[index, 'Date'] + timedelta(minutes=study_duration)
+            df.loc[index, 'Break Time'] = df.loc[index, 'End Time'] + timedelta(minutes=break_duration)
         
         else:    
             #Same day
             if df.loc[index, 'Pomodoro Session'] - df.loc[index-1, 'Pomodoro Session'] == 0:
                 #Same Pomodoro Session
-                
                 df.loc[index, 'Start Time'] = df.loc[index-1, 'Start Time']
                 df.loc[index, 'End Time'] = df.loc[index-1, 'End Time']
+                df.loc[index, 'Break Time'] = df.loc[index-1, 'Break Time']
             else:
                 #New Pomodoro Session
-                df.loc[index, 'Start Time'] = df.loc[index-1, 'End Time']
+                df.loc[index, 'Start Time'] = df.loc[index-1, 'Break Time']
                 df.loc[index, 'End Time'] = df.loc[index, 'Start Time'] + timedelta(minutes=study_duration)
+                df.loc[index, 'Break Time'] = df.loc[index, 'End Time'] + timedelta(minutes=break_duration)
         
         index +=1
         
@@ -189,17 +168,22 @@ def prepare_dataframe():
 
     df =df[['Name','Date'] + reduced_column_names]
 
+    
+    #Modified df for excel output
+    df_for_excel = df.copy()
+    
+    df_for_excel['Start Time'] = pd.to_datetime(df_for_excel['Start Time'])
+    df_for_excel['End Time'] = pd.to_datetime(df_for_excel['End Time'])
+    df_for_excel['Break Time'] = pd.to_datetime(df_for_excel['Break Time'])
+    
+    df_for_excel['Start Time'] = df_for_excel['Start Time'].dt.time
+    df_for_excel['End Time'] = df_for_excel['End Time'].dt.time
 
-    #Convert duration column to minutes and rename to study block minutes
-    df.rename(columns={'Minutes': 'Study Block (Minutes)'}, inplace=True)
-    #df['Study Block (Minutes)'] = df['Study Block (Minutes)'].apply(lambda x: x*60)
-
-    print(df[['Name', 'Date', 'Study Block Summation (Minutes)', 'Pomodoro Session', 'Start Time', 'End Time']])
 
     try:
         with pd.ExcelWriter("../data/result.xlsx", engine="openpyxl", mode="w", on_sheet_exists="replace") as writer:
-            df.to_excel(writer, index=False)
-        print("Schedule is ready for viewing")
+            df_for_excel.to_excel(writer, index=False)
+        print("Calendar is being populated ...")
     except:
         #Improve error message
         print("Error - please try run app again")

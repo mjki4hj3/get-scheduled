@@ -15,6 +15,16 @@ pip install pipenv
 ```bash 
 pipenv shell && pipenv install 
 ```
+
+4. Setup [Google OAuth Credentials](https://developers.google.com/workspace/guides/create-credentials?authuser=3#oauth-client-id) and add the credentials.json file into the project root directory
+
+5. To run the application from the root directory
+
+```bash
+cd calendar && python quickstart.py
+```
+
+6. When you first run the application approval needs to be given to the app
 ---
 ## Project Aims
 

@@ -61,13 +61,13 @@ def study_block_splitter(df, study_duration):
 
 
 
-def pomodoro_scheduler(df, sum, index, study_duration):
+def pomodoro_scheduler(df, sum, index, duration):
 
     slot = 0.01
-    space = study_duration - (sum - df.loc[index, "Minutes"])
-    # print(f"Space: {space}")
+    
+    space = duration - (sum - df.loc[index, "Minutes"])
     df.loc[index, "Minutes"] = space
-    excess = sum - study_duration
+    excess = sum - duration
     df.loc[(index + slot)] = df.loc[index]
     df.loc[(index + slot), "Minutes"] = excess
 

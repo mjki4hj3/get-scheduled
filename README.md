@@ -16,7 +16,7 @@ pip install pipenv
 pipenv shell && pipenv install 
 ```
 
-4. Setup [Google OAuth Credentials](https://developers.google.com/workspace/guides/create-credentials?authuser=3#oauth-client-id) and add the credentials.json file into the project root directory
+4. Setup [Google OAuth Credentials](https://developers.google.com/workspace/guides/create-credentials?authuser=3#oauth-client-id) and add the credentials.json file into the project root. Make sure to set the uri to http://localhost:5000/ 
 
 5. To run the application from the root directory
 

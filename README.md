@@ -11,7 +11,7 @@
 pip install pipenv
 ```
 
-3. Add your course list in the data folder. Note: you must use the exact column headers and name the file sample-data.xlsx
+3. Add your course list in the data folder. Note: you must use the exact column headers and name the file src-data.xlsx
 
 
 3. Create virtual python environment and install dependencies
@@ -37,17 +37,17 @@ cd calendar && python quickstart.py
 
 ## Project Objectives:
 - Create a schedule that serves as a guide for when to study and when to take breaks
-- A python app that takes in a course list (excel or csv) with duration of each topic (in this case a video course), as shown in Table 1, and outputs a study schedule based on parameters inputted by the user (e.g. study duration/day, break duration etc).
-- Outputted study schedule then gets automatically put into your Google Calendar via an API call
+- The app takes in a course list (excel or csv) with duration of each topic (in this case a video course), as shown in Table 1, and outputs a study schedule based on parameters inputted by the user (e.g. study duration/day, break duration etc).
 
 <p align='center'><img src=images/Tables.jpeg width=300px height= 336px></p>
 
+- Outputted study schedule then gets automatically put into your Google Calendar via an API call
 
 ## Current Outputs
 
 - Excel schedule outputed based on a [pomodoro split](https://www.youtube.com/watch?v=1pADI_eZ_-U) of 45 minutes of study and 15 minutes break
 
-<p align='center'><img src=images/outputted-study-schedule.png width=800px height= 636px></p>
+<p align='center'><img src=images/outputted-study-schedule.png width=1952px height= 916px></p>
 
 - Calendar events that were inserted based on above study schedule
 

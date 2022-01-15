@@ -10,7 +10,7 @@ date = dt.today()
 
 def prepare_dataframe():
 
-    df = pd.read_excel('../data/sample-data.xlsx')
+    df = pd.read_excel('../data/src-data.xlsx')
     study_session = input_request("How long (in hours) do you want to study each day?: ")
 
 
@@ -172,12 +172,15 @@ def prepare_dataframe():
     #Modified df for excel output
     df_for_excel = df.copy()
     
+    df_for_excel['Date'] = pd.to_datetime(df_for_excel['Date'])
     df_for_excel['Start Time'] = pd.to_datetime(df_for_excel['Start Time'])
     df_for_excel['End Time'] = pd.to_datetime(df_for_excel['End Time'])
     df_for_excel['Break Time'] = pd.to_datetime(df_for_excel['Break Time'])
     
+    df_for_excel['Date'] = df_for_excel['Date'].dt.date
     df_for_excel['Start Time'] = df_for_excel['Start Time'].dt.time
     df_for_excel['End Time'] = df_for_excel['End Time'].dt.time
+    df_for_excel['Break Time'] = df_for_excel['Break Time'].dt.time
 
 
     try:
